@@ -1,7 +1,7 @@
 from huggingface_hub import login
 from datasets import load_dataset
 from transformers import AutoTokenizer
-login(token="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")
+login(token="hf_token")
 
 
 def prepare_datasets(args):
