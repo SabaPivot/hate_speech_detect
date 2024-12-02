@@ -34,12 +34,12 @@ def parse_args():
         "--save_limit", type=int, default=5, help="저장할 모델의 최대 개수"
     )
     parser.add_argument("--seed", type=int, default=42, help="랜덤 시드 값")
-    parser.add_argument("--epochs", type=int, default=5, help="에폭 수 (예: 10)")
+    parser.add_argument("--epochs", type=int, default=5, help="에폭 수")
     parser.add_argument(
         "--batch_size",
         type=int,
         default=8,
-        help="배치 사이즈 (메모리에 맞게 조절, 예: 16 또는 32)",
+        help="배치 사이즈",
     )
     parser.add_argument(
         "--max_len", type=int, default=256, help="입력 시퀀스의 최대 길이"
@@ -88,17 +88,17 @@ def parse_args():
         "--jsonl_path",
         type=str,
         default="./jsonl_test_result.jsonl",
-        help="Eval시 결고 저장 경로"
+        help="Eval시 결과 저장 경로"
     )
 
     return parser.parse_args()
 
 
 if __name__ == "__main__":
-    # argument parsers
     args = parse_args()
     learning_rates = args.lr
     if args.mode == "do_train":
+        # Iterate over learning rates
         for args.lr in learning_rates:
             args.run_name = f"Augmented_{args.lr}_32_50_12_classifier_dropout=0.2_fp16_klue/bert"
             args.model_dir = f"/home/careforme.dropout/huggingface_trainer/Augmented_{args.lr}_32_50_12_classifier_dropout=0.1_fp16_monologg/kobert"
