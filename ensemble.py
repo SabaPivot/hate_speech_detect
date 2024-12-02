@@ -58,7 +58,6 @@ def softvote(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     accumulated_probs = None
     
-    # Process each model
     for model_dir, model_name in zip(args.model_dir, args.model_name):
         print(f"Processing model: {model_name} from {model_dir}")
         args.model_dir = model_dir
@@ -66,22 +65,19 @@ def softvote(args):
         
         _, _, hate_test = prepare_datasets(args)
         
-        # Initialize or update accumulated probabilities
         model_probs = load_and_predict_model(model_dir, hate_test, device)
         if accumulated_probs is None:
             accumulated_probs = model_probs
         else:
             accumulated_probs += model_probs
     
-    # Get ensemble predictions
     ensemble_predictions = get_ensemble_predictions(accumulated_probs)
     
-    # Load and prepare test dataset
     test_dataset = load_dataset(args.data_path)["test"]
     if 'output' in test_dataset.column_names:
         test_dataset = test_dataset.remove_columns('output')
     
-    # Apply hate vocabulary rules
+    # HARD VOTING 적용
     final_predictions = apply_hate_vocabulary_rules(test_dataset, ensemble_predictions)
     
     # Save results
