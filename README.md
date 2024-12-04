@@ -1,6 +1,8 @@
 # 혐오 발언 탐지
 한국어 Encoder-only 모델을 사용한 혐오 발언 탐지 모델입니다. 국립 국어원의 [혐오 발언 탐지](https://kli.korean.go.kr/benchmark/taskOrdtm/taskList.do?taskOrdtmId=56) 대회 참가를 위하여 작성한 코드입니다.
 
+본 프로젝트 레포트는 [레포트 링크](https://drive.google.com/file/d/10y2J4i73C34Ook2Deq2C2hXyVflY_8fk/view)를 참고해주세요.
+
 ## 개요
 본 repository는 다음과 같은 기능을 제공합니다:
 - Encoder-only Transformer 모델을 위한 훈련 스크립트
@@ -100,3 +102,26 @@ def prepare_datasets(args):
 - &online-account&
 
 ## 결과
+| Model               | f1_score |
+|---------------------|----------|
+| xlm-roberta-base-1  | 0.900    |
+| xlm-roberta-base-2  | 0.900    |
+| ko-electra-base     | 0.862    |
+| ko-bert-base        | 0.871    |
+| **Hard Voting**     | **0.928**    |
+| **Soft Voting**     | **0.921**    |
+
+
+### rule-based 적용 결과
+아래와 같이 특정 혐오 단어가 `hate_voca`에 포함되어 있지만, 모델이 혐오 표현으로 예측이 실패한 경우 예측 결과를 rule-based 방법으로 수정합니다.
+```
+    for i, data in enumerate(test_dataset):
+        if any(word in data["input"] for word in hate_voca) and result_array[i] != 1:
+            count += 1
+            result_array[i] = 1
+```
+
+`Rule-based 적용 이후, 약 2,000 개의 전체 테스트 데이터 셋 중, 약 10개의 데이터를 더 정확하게 예측하였고, 이에 따라 f1 score가 약 0.3 ~ 0.6점 증가하였습니다.`
+
+## 연락처
+해당 프로젝트와 관련하여 질문이나 이슈가 있을 경우, github 이슈를 생성해주시기 바랍니다.
