@@ -11,7 +11,7 @@ from transformers import (
     TrainingArguments,
     EarlyStoppingCallback,
 )
-from transformers.optimization import get_cosine_with_hard_restarts_schedule_with_warmup
+from transformers.optimization import get_linear_schedule_with_warmup
 from data import prepare_datasets
 from utils import compute_metrics
 
@@ -23,7 +23,7 @@ def load_model(args):
     model_config.classifier_dropout = 0.1
     
     model = AutoModelForSequenceClassification.from_pretrained(model_name, config=model_config)
-    tokenizer_len = len(AutoTokenizer.from_pretrained(args.model_name, trust_remote_code=True)) + 8
+    tokenizer_len = len(AutoTokenizer.from_pretrained(args.model_name, trust_remote_code=True)) + 8 # 스페셜 토큰 8개 추가
     model.resize_token_embeddings(tokenizer_len)
     
     return model
@@ -36,7 +36,7 @@ def load_trainer_for_train(args, model, hate_train_dataset, hate_valid_dataset):
         num_train_epochs=args.epochs,
         learning_rate=args.lr,
         per_device_train_batch_size=args.batch_size,
-        per_device_eval_batch_size=8,
+        per_device_eval_batch_size=args.batch_size,
         warmup_steps=args.warmup_steps,
         weight_decay=args.weight_decay,
         logging_dir=args.save_path + "/logs",
@@ -49,8 +49,8 @@ def load_trainer_for_train(args, model, hate_train_dataset, hate_valid_dataset):
         run_name=args.run_name,
         metric_for_best_model="f1",
         greater_is_better=True,
-        fp16=True,
-        gradient_accumulation_steps=10,
+        bf16=torch.cuda.is_bf16_supported(),
+        fp16=not torch.cuda.is_bf16_supported()
     )
 
     MyCallback = EarlyStoppingCallback(
@@ -68,13 +68,6 @@ def load_trainer_for_train(args, model, hate_train_dataset, hate_valid_dataset):
         eval_dataset=hate_valid_dataset,
         compute_metrics=compute_metrics,
         callbacks=[MyCallback],
-        optimizers=(
-            optimizer,
-            get_cosine_with_hard_restarts_schedule_with_warmup(
-                optimizer, num_warmup_steps=args.warmup_steps,
-                num_training_steps=(len(hate_train_dataset) // args.batch_size) * args.epochs // 10
-            )
-        )
     )
     print("---Set Trainer Done---")
 
@@ -128,13 +121,13 @@ def load_model_and_inference(args):
                      "또라이", "노인네", "정병", "병신", "ㅄ"]
 
         count = 0
-        for i in range(len(test_dataset)):  # Use index-based iteration
-            data = test_dataset[i]  # Access the original entry using the index
+        for i in range(len(test_dataset)):
+            data = test_dataset[i]
             if any(word in data["input"] for word in hate_voca):
                 if test_result[i] != 1:
                     count += 1
                     print(data["input"])
-                    test_result[i] = 1  # Update the output directly in the dataset
+                    test_result[i] = 1
         print(count)
 
 

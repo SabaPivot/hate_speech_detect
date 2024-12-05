@@ -98,10 +98,12 @@ if __name__ == "__main__":
     args = parse_args()
     learning_rates = args.lr
     if args.mode == "do_train":
+        # Train script only supports single model, You can modify to train various models at once (list -> string)
+        args.model_name = args.model_name[0]
         # Iterate over learning rates
         for args.lr in learning_rates:
-            args.run_name = f"Augmented_{args.lr}_32_50_12_classifier_dropout=0.2_fp16_klue/bert"
-            args.model_dir = f"/home/careforme.dropout/huggingface_trainer/Augmented_{args.lr}_32_50_12_classifier_dropout=0.1_fp16_monologg/kobert"
+            args.run_name = f"Augmented_{args.lr}_{args.model_name}"
+            args.model_dir = f"{args.lr}_{args.model_name}"
             wandb.init(
                 project="hate_speech",
                 name=args.run_name,

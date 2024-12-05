@@ -1,17 +1,16 @@
 from huggingface_hub import login
 from datasets import load_dataset
 from transformers import AutoTokenizer
-login(token="hf_token")
 
 
 def prepare_datasets(args):
     datasets = load_dataset(args.data_path)
-    train_dataset = datasets["train"]
+    # train_dataset = datasets["train"]
     val_dataset = datasets["validation"]
     test_dataset = datasets["test"]
 
     # 증강한 데이터가 있다면 아래 코드 실행
-    # augmented_train_dataset = load_dataset("json" ,data_files="augmented_train_dataset.jsonl")["train"]
+    augmented_train_dataset = load_dataset("csv", data_files="augmented_train.csv")['train']
     tokenizer = AutoTokenizer.from_pretrained(args.model_name, trust_remote_code=True)
 
     special_tokens_dict = {
@@ -32,9 +31,11 @@ def prepare_datasets(args):
         )
 
     return (
-        train_dataset.map(tokenize_function, batched=True).rename_column("output", "labels"),
+        # train_dataset.map(tokenize_function, batched=True).rename_column("output", "labels"),
+        
         # 증강한 데이터가 있다면 아래 코드 실행
-        # augmented_train_dataset.map(tokenize_function, batched=True).rename_column("output", "labels"),
+        augmented_train_dataset.map(tokenize_function, batched=True).rename_column("output", "labels"),
+
         val_dataset.map(tokenize_function, batched=True).rename_column("output", "labels"),
         test_dataset.map(tokenize_function, batched=True).rename_column("output", "labels")
     )

@@ -6,7 +6,8 @@ python main.py \
   --data_path \
     SabaPivot/hate_speech \
   --model_name \
-    monologg/koelectra-base-v3-discriminator \
+    model1_name \
+    model2_name \
   --model_dir \
     model1_path \
     model2_path \

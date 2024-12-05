@@ -77,10 +77,10 @@ def softvote(args):
     if 'output' in test_dataset.column_names:
         test_dataset = test_dataset.remove_columns('output')
     
-    # HARD VOTING 적용
+    # Rule_based filter 적용
     final_predictions = apply_hate_vocabulary_rules(test_dataset, ensemble_predictions)
     
-    # Save results
+    # 결과 저장
     test_dataset = test_dataset.add_column("output", final_predictions.tolist())
     test_dataset.to_json(args.jsonl_path, orient='records', lines=True, force_ascii=False)
     print("Evaluation completed successfully!")
