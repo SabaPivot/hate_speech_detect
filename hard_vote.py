@@ -1,7 +1,7 @@
 import json
 from glob import glob
 
-result_files = glob("result_*.jsonl")
+result_files = glob(r"inference/*.jsonl")
 all_predictions = []
 
 for file in result_files:
