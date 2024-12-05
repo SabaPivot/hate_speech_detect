@@ -54,13 +54,16 @@ bash trainer_ensemble.sh
 ```
 
 다음과 같은 parameter를 조정할 수 있습니다:
-- `model_dir`: 사용할 모델의 경로, 원하는 만큼 ensemble 적용할 모델을 추가할 수 있습니다.
+- `model_name`: 훈련에 사용한 모델(본 모델)의 경로를 입력합니다. 반드시 model_dir와 같은 순서로 입력해야 합니다. 
+- `model_dir`: 훈련된 모델의 경로를 입력합니다. 원하는 만큼 ensemble 적용할 모델을 추가할 수 있습니다.
 ```
+  --model_name \
+    team-lucid/deberta-v3-xlarge-korean \
+    team-lucid/deberta-v3-xlarge-korean \
+    ...
   --model_dir \
-    model1_path \
-    model2_path \
-    model3_path \
-    model4_path \
+    1e-05_team-lucid/deberta-v3-xlarge-korean/checkpoint-1896 \
+    3e-05_team-lucid/deberta-v3-xlarge-korean/checkpoint-4424
     ...
 ```
 최종 결과는 .jsonl 파일 형식으로 저장됩니다.
@@ -68,14 +71,16 @@ bash trainer_ensemble.sh
 ## 폴더 구조
 ```
 hate_speech_detect/
-├── data.py                    # 데이터 준비 및 토큰화 구현
-├── ensemble.py                # 앙상블 예측 구현
-├── main.py                    # 메인 함수 및 인자 파싱 구현
-├── model.py                   # 모델 훈련 및 추론 구현 
+├── data.py                    # 데이터 준비 및 토크나이저 로드
+├── ensemble.py                # soft voting 구현
+├── main.py                    # 메인 함수 및 인자 파싱
+├── model.py                   # 모델 로드, 훈련 및 추론 구현 
+├── hard_vote.py               # hard voting 구현
 ├── trainer_ensemble.sh        # 앙상블 예측 실행 스크립트
 ├── trainer_evaluation.sh      # 평가 실행 스크립트
 ├── trainer_train.sh           # 훈련 실행 스크립트
 ├── utils.py                   # compute metrics 구현
+├── requirements.txt           # 필수 라이브러리 목록
 └── README.md
 ```
 
@@ -84,8 +89,9 @@ hate_speech_detect/
 
 해당 사이트에서 데이터 사용 허가를 승인 받은 이후, huggingface library에 private dataset으로 추가한 이후 `data.py`의 아래 코드로 데이터를 불러오기를 권장합니다.
 ```
-login(token="hf_token")
-...
+huggingface-cli login
+```
+```
 def prepare_datasets(args):
     datasets = load_dataset(args.data_path)
 ```
@@ -121,7 +127,15 @@ def prepare_datasets(args):
             result_array[i] = 1
 ```
 
-`Rule-based 적용 이후, 약 2,000 개의 전체 테스트 데이터 셋 중, 약 10개의 데이터를 더 정확하게 예측하였고, 이에 따라 f1 score가 약 0.3 ~ 0.6점 증가하였습니다.`
+`Rule-based 적용 이후, 약 2,000 개의 전체 테스트 데이터 셋 중, 약 10개의 데이터를 더 정확하게 예측하였고, 이에 따라 f1 score가 약 0.03 ~ 0.06점 증가하였습니다.`
+
+## 대회 순위
+2024년 12월 5일 기준 대회 순위는 다음과 같습니다.
+- **이름**:
+- **사용 모델**:
+- **사용 기법**:
+- **점수**:
+- **등수**:
 
 ## 연락처
 해당 프로젝트와 관련하여 질문이나 이슈가 있을 경우, github 이슈를 생성해주시기 바랍니다.
