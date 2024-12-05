@@ -59,7 +59,6 @@ def parse_args():
         "--model_dir",
         type=str,
         nargs="+",
-        default="./best_model",
         help="추론 시 불러올 모델의 경로",
     )
 
@@ -87,7 +86,7 @@ def parse_args():
     parser.add_argument(
         "--jsonl_path",
         type=str,
-        default="./jsonl_test_result.jsonl",
+        default="./inference",
         help="Eval시 결과 저장 경로"
     )
 

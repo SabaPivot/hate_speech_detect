@@ -94,7 +94,7 @@ def load_model_and_inference(args):
     for model_dir, model_name in zip(args.model_dir, args.model_name):
         args.model_dir = model_dir
         args.model_name = model_name
-        print(model_dir, model_name)
+        print(args.model_dir, args.model_name)
 
         _, _, hate_test = prepare_datasets(args)
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -115,8 +115,9 @@ def load_model_and_inference(args):
 
         if 'output' in test_dataset.column_names:
             test_dataset = test_dataset.remove_columns('output')
-        # HARD VOTING
-        hate_voca = ["치매", "극좌", "극우", "한남", "한녀", "새끼", "페미", "똘추", "부랄", "발광", "벌레", "꼰대", "트랜스젠더", "트젠", "레즈", "게이",
+
+        # Rule-based filter
+        hate_voca = ["치매", "극좌", "극우", "한남", "한녀", "새끼", "페미", "똘추", "부랄", "발광", "꼰대", "트랜스젠더", "트젠", "레즈", "게이",
                      "미친놈", "느개비", "니애미", "쿰척", "냄저", "재기", "창놈", "창녀", "사회악", "자살", "인셀", "여시", "지잡", "씹떡", "씹덕",
                      "또라이", "노인네", "정병", "병신", "ㅄ"]
 
@@ -132,6 +133,6 @@ def load_model_and_inference(args):
 
 
         test_dataset = test_dataset.add_column("output", test_result)
-        args.jsonl_path = f"{args.model_name}_records.jsonl"
+        args.jsonl_path = f"{os.path.join(args.jsonl_path, os.path.basename(model_dir))}_records.jsonl"
         test_dataset.to_json(args.jsonl_path, orient='records', lines=True, force_ascii=False)
         print("Evaluation done!")
